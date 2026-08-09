@@ -1,0 +1,72 @@
+name: Status check
+
+# Probes brooklinefire.org every 30 minutes and republishes this page.
+#
+# This repository exists separately from the website so the status page does
+# not share fate with the thing it reports on. The website runs on AWS
+# (S3 + CloudFront); this runs entirely on GitHub. If AWS has a bad day, this
+# job still runs, still records the outage, still republishes, and still
+# emails on failure.
+#
+# Nothing here touches AWS, so no credentials of any kind are needed.
+
+on:
+  schedule:
+    # GitHub may delay scheduled runs under load, which is fine for
+    # availability history.
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write   # commits the probe history and regenerated page
+
+concurrency:
+  group: status-check
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Probe the site and rebuild the page
+        id: probe
+        shell: pwsh
+        run: |
+          $stamp = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+          ./build-status.ps1 -Now $stamp
+
+          $h = Get-Content history.json -Raw | ConvertFrom-Json
+          $last = $h.entries[-1]
+          $down = @()
+          foreach ($p in $last.r.PSObject.Properties) {
+            if (-not $p.Value.ok) { $down += "$($p.Name) returned $($p.Value.code)" }
+          }
+          "failing=$($down.Count)" >> $env:GITHUB_OUTPUT
+          "detail=$($down -join '; ')" >> $env:GITHUB_OUTPUT
+
+      # Committing to main is what publishes: GitHub Pages serves this branch.
+      # Unlike the website repository, nobody edits this one by hand, so a
+      # commit every 30 minutes costs nothing in friction.
+      - name: Publish
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html history.json
+          if git diff --staged --quiet; then
+            echo "Nothing changed."
+          else
+            git commit -m "Probe $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+          fi
+
+      # A failed scheduled run emails the repository owner. That notification
+      # is the point of the whole job.
+      - name: Fail if the site is unhealthy
+        if: steps.probe.outputs.failing != '0'
+        run: |
+          echo "::error::brooklinefire.org check failing - ${{ steps.probe.outputs.detail }}"
+          exit 1

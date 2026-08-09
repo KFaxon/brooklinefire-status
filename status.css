@@ -1,0 +1,138 @@
+/* Status page. Deliberately self-contained: this page may be hosted apart
+   from the main site, so it must not depend on brooklinefire.org being up in
+   order to render. Same brand palette, no shared stylesheet. */
+
+:root {
+  --red: #c00000;
+  --red-700: #8a0000;
+  --red-900: #4a0000;
+  --cream: #ffeeba;
+  --ink: #14141a;
+  --slate: #5a5a66;
+  --line: #e3e3ea;
+  --paper: #ffffff;
+  --paper-2: #f7f7fa;
+  --green: #1c7c3c;
+  --amber: #9a6200;
+  --font: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--paper-2);
+  padding: 2rem 1rem 3rem;
+}
+
+.wrap { max-width: 780px; margin-inline: auto; }
+
+.head { margin-bottom: 1.5rem; }
+
+.eyebrow {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--red-700);
+}
+
+h1 {
+  font-size: clamp(1.9rem, 1.4rem + 2vw, 2.6rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+h2 { font-size: 1.05rem; font-weight: 800; }
+
+a { color: var(--red-700); font-weight: 600; text-underline-offset: 3px; }
+
+/* --- overall banner ------------------------------------------------------ */
+
+.banner {
+  padding: 1.5rem;
+  border-radius: 14px;
+  color: #fff;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 8px 26px rgba(20, 20, 26, 0.12);
+}
+
+.banner h2 { font-size: clamp(1.3rem, 1rem + 1.4vw, 1.8rem); font-weight: 900; }
+.banner p { font-size: 0.9rem; opacity: 0.9; }
+
+/* Colour is never the only signal: the heading text states the state too. */
+.banner.operational { background: linear-gradient(140deg, #1c7c3c, #14562b); }
+.banner.degraded    { background: linear-gradient(140deg, #9a6200, #6d4500); }
+.banner.down        { background: linear-gradient(140deg, var(--red), var(--red-900)); }
+
+/* --- cards --------------------------------------------------------------- */
+
+.card {
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(20, 20, 26, 0.05), 0 4px 16px rgba(20, 20, 26, 0.05);
+}
+
+.card > h2 { margin-bottom: 1rem; }
+
+.checks { list-style: none; }
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.check:last-child { border-bottom: 0; }
+
+.check-name { flex: 1; font-weight: 600; }
+
+.check-state { font-size: 0.82rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+.check-state.ok  { color: var(--green); }
+.check-state.bad { color: var(--red); }
+
+.dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+.dot.ok  { background: var(--green); }
+.dot.bad { background: var(--red); }
+
+/* --- metrics and history ------------------------------------------------- */
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.metric { text-align: center; }
+.metric b { display: block; font-size: 1.7rem; font-weight: 900; letter-spacing: -0.02em; color: var(--red-700); }
+.metric span { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--slate); }
+
+.bars { display: flex; gap: 3px; align-items: stretch; height: 42px; }
+
+.bar { flex: 1; min-width: 3px; border-radius: 2px; }
+.bar.ok      { background: var(--green); }
+.bar.partial { background: var(--amber); }
+.bar.bad     { background: var(--red); }
+
+.foot-note { margin-top: 0.75rem; font-size: 0.8rem; color: var(--slate); }
+
+/* --- emergency note ------------------------------------------------------ */
+
+.note { border-left: 5px solid var(--red); }
+.note h2 { color: var(--red-700); }
+.note p { font-size: 0.92rem; margin-top: 0.5rem; }
+
+.foot { text-align: center; font-size: 0.85rem; color: var(--slate); }
+.foot p { margin-top: 0.4rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
