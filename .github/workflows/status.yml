@@ -1,6 +1,6 @@
 name: Status check
 
-# Probes brooklinefire.org every 30 minutes and republishes this page.
+# Probes www.brooklinefpd.com every 30 minutes and republishes this page.
 #
 # This repository exists separately from the website so the status page does
 # not share fate with the thing it reports on. The website runs on AWS
@@ -68,5 +68,5 @@ jobs:
       - name: Fail if the site is unhealthy
         if: steps.probe.outputs.failing != '0'
         run: |
-          echo "::error::brooklinefire.org check failing - ${{ steps.probe.outputs.detail }}"
+          echo "::error::brooklinefpd.com check failing - ${{ steps.probe.outputs.detail }}"
           exit 1

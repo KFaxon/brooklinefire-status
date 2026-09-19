@@ -38,11 +38,17 @@ $maxEntries  = 1500   # about 31 days at one probe every 30 minutes
 # on 4xx. The real binary is needed so a 404 can be asserted as a pass.
 $curlCmd = if (Get-Command curl.exe -ErrorAction SilentlyContinue) { 'curl.exe' } else { 'curl' }
 
+# www.brooklinefpd.com is the main address. The other two are redirects that
+# people still type or have bookmarked, so they are checked for the redirect
+# itself (301) - a 200 there would mean the redirect had silently stopped.
+# Ids are stable across the domain change so history keeps lining up; a new id
+# simply has no history before it was added, which the aggregation skips.
 $checks = @(
-    [pscustomobject]@{ id = 'site';     name = 'Public website';  url = 'https://brooklinefire.org/';               expect = 200 }
-    [pscustomobject]@{ id = 'www';      name = 'www redirect';    url = 'https://www.brooklinefire.org/';           expect = 200 }
-    [pscustomobject]@{ id = 'assets';   name = 'Stylesheet';      url = 'https://brooklinefire.org/styles.css';     expect = 200 }
-    [pscustomobject]@{ id = 'notfound'; name = 'Error handling';  url = 'https://brooklinefire.org/does-not-exist'; expect = 404 }
+    [pscustomobject]@{ id = 'site';     name = 'Public website';               url = 'https://www.brooklinefpd.com/';               expect = 200 }
+    [pscustomobject]@{ id = 'apex';     name = 'brooklinefpd.com forwarding';  url = 'https://brooklinefpd.com/';                   expect = 301 }
+    [pscustomobject]@{ id = 'www';      name = 'Old address (brooklinefire.org) redirect'; url = 'https://brooklinefire.org/';      expect = 301 }
+    [pscustomobject]@{ id = 'assets';   name = 'Stylesheet';                   url = 'https://www.brooklinefpd.com/styles.css';     expect = 200 }
+    [pscustomobject]@{ id = 'notfound'; name = 'Error handling';               url = 'https://www.brooklinefpd.com/does-not-exist'; expect = 404 }
 )
 
 function ConvertTo-HtmlText {
@@ -196,7 +202,7 @@ $html = @"
   <meta name="description" content="Live availability status for the Brookline Fire Protection District website." />
   <meta name="robots" content="noindex" />
   <title>System Status $mdash Brookline Fire Protection District</title>
-  <link rel="icon" href="https://brooklinefire.org/images/logo.jpg" type="image/jpeg" />
+  <link rel="icon" href="https://www.brooklinefpd.com/images/logo.jpg" type="image/jpeg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400..900&display=swap" rel="stylesheet" />
@@ -242,7 +248,7 @@ $barsHtml
     </section>
 
     <footer class="foot">
-      <p><a href="https://brooklinefire.org/">Back to brooklinefire.org</a></p>
+      <p><a href="https://www.brooklinefpd.com/">Back to brooklinefpd.com</a></p>
       <p>Checks run automatically every 30 minutes.</p>
     </footer>
 

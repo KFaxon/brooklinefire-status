@@ -1,6 +1,6 @@
 # Brookline Fire — Status Page
 
-Public availability status for <https://brooklinefire.org>.
+Public availability status for <https://www.brooklinefpd.com>.
 
 - **Live:** <https://status.brooklinefire.org>
 - **Hosting:** GitHub Pages
@@ -25,7 +25,7 @@ stays private.
 ## How it works
 
 1. The scheduled workflow runs `build-status.ps1`.
-2. That probes four endpoints on brooklinefire.org and appends the result to
+2. That probes five endpoints across brooklinefpd.com and the old brooklinefire.org address and appends the result to
    `history.json`.
 3. It regenerates `index.html` with the results baked in as static HTML.
 4. The workflow commits both. GitHub Pages serves `main`, so committing
@@ -41,9 +41,10 @@ tool, and it must stay readable with scripting disabled.
 
 | Check | Expects |
 |---|---|
-| Public website | `https://brooklinefire.org/` returns 200 |
-| www redirect | `https://www.brooklinefire.org/` returns 200 |
-| Stylesheet | `https://brooklinefire.org/styles.css` returns 200 |
+| Public website | `https://www.brooklinefpd.com/` returns 200 |
+| brooklinefpd.com forwarding | `https://brooklinefpd.com/` returns 301 (GoDaddy forward to www) |
+| Old address redirect | `https://brooklinefire.org/` returns 301 (CloudFront Function to www.brooklinefpd.com) |
+| Stylesheet | `https://www.brooklinefpd.com/styles.css` returns 200 |
 | Error handling | an unknown path returns 404, not 403 |
 
 The last one is deliberate: a misconfigured CloudFront distribution serves raw
